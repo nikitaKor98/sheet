@@ -1,0 +1,61 @@
+.sheet
+    display: grid
+    position: relative
+    background-color: #a9a9a9
+    &__top
+        grid-column: 2 / 3
+        display: grid
+        grid-template-columns: repeat(26, min-content)
+        overflow: hidden
+        &_letter
+            font-size: 1.6rem
+            font-weight: 300
+            height: 3rem
+            text-align: center
+            background-color: #fff
+            border-top: .1rem solid #a9a9a9
+            border-right: .1rem solid #a9a9a9
+            border-bottom: .1rem solid #a9a9a9
+    &__left
+        grid-column: 1 / 2
+        grid-row: 2 / 3
+        overflow: hidden
+        display: grid
+        &_number
+            height: 3rem
+            font-size: 1.6rem
+            font-weight: 300
+            text-align: center
+            background-color: #fff
+            border-left: .1rem solid #a9a9a9
+            border-bottom: .1rem solid #a9a9a9
+            border-right: .1rem solid #a9a9a9
+    &__web
+        display: grid
+        grid-column: 2 / 3
+        overflow: hidden
+        &_change
+            height: 3rem
+            font-size: 1.6rem
+            font-weight: 300
+            text-align: center
+            background-color: #fff
+            border-bottom: .1rem solid #a9a9a9
+            border-right: .1rem solid #a9a9a9
+    &__scrollbar
+        background-color: #fff
+        &_y
+            overflow-x: hidden
+            overflow-y: scroll
+            grid-column: 3 / -1
+        &_x
+            overflow-y: hidden
+            overflow-x: scroll
+            grid-column: 2 / 3
+    &__line
+        position: absolute
+        background-color: #a9a9a9
+        &_x
+            width: .5rem
+            height: 100%
+        &_y
