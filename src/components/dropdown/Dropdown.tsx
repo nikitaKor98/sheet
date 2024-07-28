@@ -23,13 +23,11 @@ function Dropdown(props: any) {
             }
         };
 
-        document.addEventListener("click", handleClick, true);
+        document.addEventListener("click", handleClick);
 
-        return () => {
-            document.removeEventListener("click", handleClick, true);
-        };
-        
-    }, [dropdownRef, onClose]);
+        !isOpen && document.removeEventListener("click", handleClick);
+
+    }, [dropdownRef, onClose, isOpen]);
 
     return (
         <div ref={dropdownRef} className={`${className}`}>
@@ -49,7 +47,7 @@ function Dropdown(props: any) {
                         className={item === value ? "active" : ""}
                         onClick={() => {
                             setValue(item);
-                            setIsOpen(!isOpen);
+                            onClose();
                         }}
                         key={item}>{renderContent(item)}
                     </li>
