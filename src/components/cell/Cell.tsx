@@ -1,23 +1,29 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import { useTableContext } from "providers/tableProvider";
 
 function Cell(props: any) {
 
-    const { updateCell, table } = useTableContext();
-
     const {
+        idCell,
         className,
         children,
         cellWidth,
         cellHeight,
         setCellWidth,
         setCellHeight,
-        setShowPositionLine,
-        setLineX
+        setShowPositionLineX,
+        setLineX,
+        setShowPositionLineY,
+        setLineY
     } = props;
 
     const cellRef = useRef<HTMLDivElement>(null);
+
+    const { updateCell, table } = useTableContext();
+
+    const id = Number(idCell[0]) ? idCell : idCell.slice(1, idCell.length);
+    console.log(id)
 
     useEffect(() => {
         if (cellRef.current) {
@@ -28,22 +34,40 @@ function Cell(props: any) {
 
     const handleMouseDown = (event: any) => {
 
-        const startLine = event.pageX;
-        const width = event.target.offsetParent.clientWidth;
+        let startLine: number;
+        let widthOrHeight: number;
         let endLine: number;
+        let prop: string
         const id = event.target.getAttribute("id");
 
-        setShowPositionLine(true);
-        setLineX(event.pageX);
+        if (className.split("__")[1].split("_")[0] === "top") {
+            startLine = event.pageX;
+            widthOrHeight = event.target.offsetParent.clientWidth;
+            prop = "width"
+            setShowPositionLineX(true);
+            setLineX(event.pageX);
+        } else {
+            startLine = event.pageY;
+            widthOrHeight = event.target.offsetParent.clientHeight;
+            prop = "height"
+            setShowPositionLineY(true);
+            setLineY(event.pageY);
+        }
 
         const handelMouseMove = (event: any) => {
-            setLineX(event.pageX);
-            endLine = event.pageX;
+            if (className.split("__")[1].split("_")[0] === "top") {
+                setLineX(event.pageX);
+                endLine = event.pageX;
+            } else {
+                setLineY(event.pageY);
+                endLine = event.pageY;
+            }
         }
 
         const handelMouseUp = () => {
-            updateCell(endLine - startLine + width, id);
-            setShowPositionLine(false);
+            updateCell(endLine - startLine + widthOrHeight, prop, id);
+            setShowPositionLineX(false);
+            setShowPositionLineY(false);
             window.removeEventListener("mousemove", handelMouseMove);
             window.removeEventListener("mouseup", handelMouseUp);
         }
@@ -58,14 +82,14 @@ function Cell(props: any) {
             className="cell">
             <div
                 style={{
-                    width: `${table[children] ? table[children] : className.split("__")[1].split("_")[0] === "left" ? "100%" : cellWidth}px`,
-                    height: `${cellHeight}px`
+                    width: `${table[idCell[0]] ? table[idCell[0]].width : className.split("__")[1].split("_")[0] === "left" ? "100%" : cellWidth}px`,
+                    height: `${table[id] && table[id].height}px`
                 }}
                 className={className}>
                 {children}
             </div>
             <div
-                id={children}
+                id={idCell}
                 onMouseDown={handleMouseDown}
                 className={"resizer resizer__" + className.split("__")[1].split("_")[0]} ></div>
         </div >
