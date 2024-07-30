@@ -11,8 +11,10 @@ function Sheet(props: any) {
     const numberColumn: number[] = [];
     const [cellWidthLetter, setCellWidthLetter] = useState<number>();
     const [cellHeightLetter, setCellHeightLetter] = useState();
-    const [showPositionLine, setShowPositionLine] = useState(false);
+    const [showPositionLineX, setShowPositionLineX] = useState(false);
     const [lineX, setLineX] = useState();
+    const [showPositionLineY, setShowPositionLineY] = useState(false);
+    const [lineY, setLineY] = useState<number>();
 
     const scrollRefTop = useRef<HTMLDivElement>(null);
     const scrollRefLeft = useRef<HTMLDivElement>(null);
@@ -50,24 +52,33 @@ function Sheet(props: any) {
     }, [headerHeight, sheetMenuHeight]);
 
     const renderContent = (value: any, type: string) => {
+
         let i = 0;
         numberColumn.splice(0, numberColumn.length);
 
         while (i < value) {
             i++;
-            numberColumn.push(i);
+            if (type === "web_change") {
+                const data: any = dataLetters.map(letter => letter + i);
+                numberColumn.push(...data);
+            } else {
+                numberColumn.push(i);
+            }
         }
-        return numberColumn.map((num: number) =>
+        return numberColumn.map((id: number) =>
             <Cell
-                key={num}
+                key={id}
+                idCell={`${id}`}
                 setLineX={setLineX}
-                setShowPositionLine={setShowPositionLine}
+                setShowPositionLineX={setShowPositionLineX}
+                setLineY={setLineY}
+                setShowPositionLineY={setShowPositionLineY}
                 cellWidth={cellWidthLetter}
                 cellHeight={cellHeightLetter}
                 setCellWidth={setCellWidthLetter}
                 setCellHeight={setCellHeightLetter}
                 className={`sheet__${type}`}>
-                {num}
+                {type === "web_change" ? <input className="sheet__cell-input" /> : `${id}`}
             </Cell>);
     }
 
@@ -119,8 +130,11 @@ function Sheet(props: any) {
                 {dataLetters.map(letter =>
                     <Cell
                         key={letter}
+                        idCell={letter}
                         setLineX={setLineX}
-                        setShowPositionLine={setShowPositionLine}
+                        setShowPositionLineX={setShowPositionLineX}
+                        setLineY={setLineY}
+                        setShowPositionLineY={setShowPositionLineY}
                         cellWidth={cellWidthLetter}
                         cellHeight={cellHeightLetter}
                         setCellWidth={setCellWidthLetter}
@@ -140,10 +154,10 @@ function Sheet(props: any) {
                 onScroll={handleScroll}
                 className="sheet__web"
                 style={{
-                    gridTemplateColumns: `repeat(${dataLetters.length}, 10rem)`,
-                    gridTemplateRows: `repeat(${numberColumn.length}, 3rem)`
+                    gridTemplateColumns: `repeat(${dataLetters.length}, min-content)`,
+                    gridTemplateRows: `repeat(${numberColumn.length}, min-content)`
                 }}>
-                {renderContent(dataLetters.length * dataNumber, "web_change")}
+                {renderContent(dataNumber, "web_change")}
             </div>
             <div
                 ref={scrollbarRefY}
@@ -157,9 +171,12 @@ function Sheet(props: any) {
                 className="sheet__scrollbar sheet__scrollbar_x">
                 <div style={{ width: `${cellWidthLetter && cellWidthLetter * dataLetters.length}px`, height: "1px" }} />
             </div>
-            {showPositionLine && <div
+            {showPositionLineX && <div
                 style={{ left: `${lineX}px` }}
                 className="sheet__line sheet__line_x"></div>}
+            {showPositionLineY && lineY && <div
+                style={{ top: `${lineY - headerHeight}px` }}
+                className="sheet__line sheet__line_y"></div>}
         </div>
     )
 }
