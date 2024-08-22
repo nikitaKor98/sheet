@@ -39,7 +39,7 @@ function Dropdown(props: any) {
             />
             <Button onClick={onClose}>
                 {renderContent(value)}
-                {isArrow && <SvgCaretDown width={20} height={20} />}
+                {isArrow && <SvgCaretDown />}
             </Button>
             <ul className={className + type}>
                 {isOpen && items.map((item: any) =>

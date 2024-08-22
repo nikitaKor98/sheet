@@ -23,7 +23,6 @@ function Cell(props: any) {
     const { updateCell, table } = useTableContext();
 
     const id = Number(idCell[0]) ? idCell : idCell.slice(1, idCell.length);
-    console.log(id)
 
     useEffect(() => {
         if (cellRef.current) {

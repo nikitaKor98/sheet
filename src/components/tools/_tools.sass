@@ -1,5 +1,7 @@
+@import "../../styles/base.sass"
+
 .tools
-    background-color: #b5fdbb
+    background-color: $color-darck-green
     border-radius: 2rem
     margin: 1rem
     padding: .5rem 0 .5rem 1.5rem
@@ -11,7 +13,7 @@
         &_align
             display: inline-block
             position: absolute
-            background-color: #b5fdbb
+            background-color: $color-darck-green
             width: 10rem
             text-align: center
             border-radius: 1rem
@@ -27,15 +29,21 @@
         &_checked:checked ~ &_align
             opacity: 1
             padding: .5rem
-
+    &__separator
+        display: inline-block
+        border: none
+        margin: 0 .5rem
+        width: .2rem
+        height: 2rem
+        border-left: .2rem solid $color-darck-grey
 li
     display: inline-block
     padding: .2rem .5rem
     border-radius: .3rem
     &:hover
-        background-color: #cacaca
+        background-color: $color-light-grey
 
 .active
-    background-color: #ecffea
+    background-color: $color-light-green
     &:hover
-        background-color: #ecffea
+        background-color: $color-light-green

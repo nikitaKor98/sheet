@@ -37,7 +37,7 @@ function Sheet(props: any) {
                 const styleColunm = Math.floor(window.innerWidth - leftWidth - scrollbarWidth);
 
                 sheetRef.current.setAttribute(
-                    "style", `grid-template-rows: 3rem ${styleRow}px 1.5rem; grid-template-columns: 5vw ${styleColunm}px 1.5rem`
+                    "style", `grid-template-rows: 3rem ${styleRow}px 1.2rem; grid-template-columns: 5vw ${styleColunm}px 1.2rem`
                 );
             }
         }

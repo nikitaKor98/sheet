@@ -35,31 +35,33 @@ function Tools() {
     return (
         <div className="tools">
             <Button>
-                <SvgSearch width={20} height={20} />
+                <SvgSearch />
             </Button>
             <Button>
-                <SvgBack width={20} height={20} />
+                <SvgBack />
             </Button>
             <Button>
-                <SvgNext width={20} height={20} />
+                <SvgNext />
             </Button>
             <Button>
-                <SvgPrint width={20} height={20} />
+                <SvgPrint />
+            </Button>
+            <div className="tools__separator"></div>
+            <Button>
+                <SvgBold />
             </Button>
             <Button>
-                <SvgBold width={18} height={18} />
+                <SvgItalic />
             </Button>
             <Button>
-                <SvgItalic width={18} height={18} />
+                <SvgStrikethrough />
             </Button>
             <Button>
-                <SvgStrikethrough width={18} height={18} />
+                <SvgUnderline />
             </Button>
+            <div className="tools__separator"></div>
             <Button>
-                <SvgUnderline width={20} height={20} />
-            </Button>
-            <Button>
-                <SvgFill width={20} height={20} />
+                <SvgFill />
             </Button>
             <Dropdown
                 className={"tools__dropdown"}
