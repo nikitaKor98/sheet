@@ -2,6 +2,7 @@ import Button from "components/button/Button";
 import Dropdown from "components/dropdown/Dropdown";
 
 import logo from "../../assets/img/logo.png";
+import ColorSelector from "components/color-selector/ColorSelector";
 
 function Menu() {
 
@@ -42,6 +43,7 @@ function Menu() {
             <div className="menu__btn">
                 {btnUpData.map((item: any) => {
                     return <Dropdown
+                        key={item}
                         className={"menu__dropdown"}
                         type={"_up"}
                         items={Object.keys(allData[item.toLowerCase()])}
@@ -59,6 +61,7 @@ function Menu() {
                 <Button><p>Tools</p></Button>
                 <Button><p>Extensions</p></Button>
                 <Button><p>Reference</p></Button>
+                <ColorSelector />
             </div>
         </div>
     )
