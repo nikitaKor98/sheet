@@ -20,10 +20,10 @@ function SheetMenu(props: any) {
         <div
             ref={sheetMenuRef}
             className="sheet-menu">
-            <Button className={"btn-circle"}>
+            <Button className="btn-circle">
                 <div className="btn-circle__plus"></div>
             </Button>
-            <Button className={"btn-circle"}>
+            <Button className="btn-circle">
                 <div className="btn-circle__hamburger"></div>
             </Button>
             <Button>

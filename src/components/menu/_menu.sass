@@ -1,3 +1,5 @@
+@import "../../styles/base.sass"
+
 .menu
     display: grid
     grid-template-columns: 12rem 1fr
@@ -15,3 +17,21 @@
     &__btn
         align-self: end
         justify-self: start
+    &__dropdown
+        display: inline-block
+        position: relative
+        height: 100%
+        z-index: 100
+        &_up
+            width: 20rem
+            display: list-item
+            position: absolute
+            list-style: none
+            border-radius: .5rem
+            background-color: $color-white
+            box-shadow: $box-shadow
+        &_up-item
+            width: 20rem
+        &_checked
+            visibility: hidden
+            width: 0
