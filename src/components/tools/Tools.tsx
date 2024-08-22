@@ -22,15 +22,14 @@ function Tools() {
     const [value, setValue] = useState("left");
 
     const iconsData: any = {
-        left: <SvgAlignLeft width={20} height={20} />,
-        center: <SvgAlignCenter width={20} height={20} />,
-        right: <SvgAlignRight width={20} height={20} />
+        left: <SvgAlignLeft />,
+        center: <SvgAlignCenter />,
+        right: <SvgAlignRight />
     }
 
     const renderContent = (key: any) => {
         return iconsData[key];
     }
-
 
     return (
         <div className="tools">
@@ -66,7 +65,7 @@ function Tools() {
             <Dropdown
                 className={"tools__dropdown"}
                 type={"_align"}
-                items={["left", "center", "right"]}
+                items={Object.keys(iconsData)}
                 value={value}
                 setValue={setValue}
                 renderContent={renderContent}

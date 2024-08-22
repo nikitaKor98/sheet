@@ -6,7 +6,7 @@ import { ReactComponent as SvgCaretDown } from "../../assets/icon/caret-down.svg
 
 function Dropdown(props: any) {
 
-    const { className, type, items, value, renderContent, isArrow, setValue } = props;
+    const { children, className, type, items, value, renderContent, isArrow, setValue, data } = props;
 
     const [isOpen, setIsOpen] = useState(false);
 
@@ -40,16 +40,17 @@ function Dropdown(props: any) {
             <Button onClick={onClose}>
                 {renderContent(value)}
                 {isArrow && <SvgCaretDown />}
+                {children && children}
             </Button>
             <ul className={className + type}>
                 {isOpen && items.map((item: any) =>
                     <li
-                        className={item === value ? "active" : ""}
+                        className={`${className + type}-item ${item === value ? "active" : ""}`}
                         onClick={() => {
                             setValue(item);
                             onClose();
                         }}
-                        key={item}>{renderContent(item)}
+                        key={item}>{renderContent(item, data)}
                     </li>
                 )
                 }
