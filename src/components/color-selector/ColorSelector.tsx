@@ -91,10 +91,11 @@ function ColorSelector() {
             <ul className="color-selector__color-palette">
                 {Object.keys(colorData).map((color: any) => {
                     return <li
-                        className="color-selector__color-palette_item"
+                        className="color-selector__color-palette_item color-selector__color-palette_item_active"
                         style={{ backgroundColor: `${colorData[color]}` }}></li>
                 })}
             </ul>
+            <Button><p>Custom color</p></Button>
         </div>
     )
 }

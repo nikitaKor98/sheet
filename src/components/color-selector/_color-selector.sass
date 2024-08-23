@@ -1,11 +1,29 @@
 @import "../../styles/base.sass"
 
 .color-selector
-    width: 20rem
+    display: grid
+    justify-content: center
     &__color-palette
-        width: 15rem
+        width: 22rem
         &_item
-            width: 1.5rem
-            height: 1.5rem
+            position: relative
+            width: 2.2rem
+            height: 2.2rem
             border-radius: 50%
             border: .1rem solid $color-light-grey
+            transition: all .2s
+            cursor: pointer
+            &:hover
+                transform: scale(1.2)
+            &_active
+                &::before
+                    position: absolute
+                    content: ""
+                    display: block
+                    top: 45%
+                    left: 50%
+                    width: 1.2rem
+                    height: .6rem
+                    border-left: .2rem solid $color-darck-grey
+                    border-bottom: .2rem solid $color-darck-grey
+                    transform: translate(-50%, -50%) rotate(-45deg)
