@@ -14,6 +14,7 @@
             transition: all .2s
             cursor: pointer
             &:hover
+                z-index: 100
                 transform: scale(1.2)
             &_active
                 &::before
@@ -24,6 +25,6 @@
                     left: 50%
                     width: 1.2rem
                     height: .6rem
-                    border-left: .2rem solid $color-darck-grey
-                    border-bottom: .2rem solid $color-darck-grey
+                    border-left: .2rem solid var(--checkBox-color)
+                    border-bottom: .2rem solid var(--checkBox-color)
                     transform: translate(-50%, -50%) rotate(-45deg)

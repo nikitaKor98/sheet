@@ -1,6 +1,9 @@
 import Button from "components/button/Button";
+import { useState } from "react";
 
-function ColorSelector() {
+function ColorSelector(props: any) {
+
+    const { value, setValue } = props;
 
     const colorData: any = {
         black: "#000000",
@@ -85,14 +88,38 @@ function ColorSelector() {
         darkMagentaThree: "#4c1130"
     }
 
+    const [color, setColor] = useState("#fff");
+
+    const checkBox = { "--checkBox-color": color } as React.CSSProperties;
+
+    const setDarkOrLight = (hex: any) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        const rgb = result && {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        }
+        if (rgb && Math.sqrt(0.299 * (rgb.r * rgb.r) + 0.587 * (rgb.g * rgb.g) + 0.114 * (rgb.b * rgb.b)) > 127.5) {
+            setColor("#333333");
+        } else {
+            setColor("#fff");
+        }
+    }
+
     return (
         <div className="color-selector">
             <Button><p>Reset parameters</p></Button>
             <ul className="color-selector__color-palette">
                 {Object.keys(colorData).map((color: any) => {
                     return <li
-                        className="color-selector__color-palette_item color-selector__color-palette_item_active"
-                        style={{ backgroundColor: `${colorData[color]}` }}></li>
+                        key={color}
+                        onClick={() => {
+                            setValue(color);
+                            setDarkOrLight(colorData[color]);
+                        }}
+                        className={`color-selector__color-palette_item${value === color ? " color-selector__color-palette_item_active" : ""}`}
+                        style={{ backgroundColor: `${colorData[color]}`, ...checkBox }}
+                    ></li>
                 })}
             </ul>
             <Button><p>Custom color</p></Button>
