@@ -89,11 +89,13 @@ function ColorSelector(props: any) {
     }
 
     const [color, setColor] = useState("#fff");
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
 
     const checkBox = { "--checkBox-color": color } as React.CSSProperties;
 
-
+    const onClose = () => {
+        setIsOpen(!isOpen)
+    }
 
     const setDarkOrLight = (hex: any) => {
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -126,13 +128,17 @@ function ColorSelector(props: any) {
                 })}
             </ul>
             <Button
-                onClick={() => { }}
+                onClick={onClose}
             ><p>Custom color</p></Button>
             {isOpen && <div className="color-selector__color-custom">
-                <div className="color-selector__color-custom_box"></div>
+                <div className="color-selector__color-custom_box">
+                    <div className="color-selector__color-custom_box_pointer"></div>
+                </div>
                 <div className="color-selector__color-custom_slider">
                     <div className="color-selector__color-custom_slider_swatch"></div>
-                    <div className="color-selector__color-custom_slider_swatch-slider"></div>
+                    <div className="color-selector__color-custom_slider_swatch-slider">
+                        <div className="color-selector__color-custom_slider_swatch-slider_pointer"></div>
+                    </div>
                 </div>
                 <div className="color-selector__color-custom_information">
 
