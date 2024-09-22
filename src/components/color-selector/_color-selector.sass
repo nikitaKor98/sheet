@@ -50,8 +50,9 @@
                 background: linear-gradient(to bottom, transparent 0%, #000)
             &_pointer
                 position: absolute
-                top: 12rem - .8rem
-                left: -.8rem
+                top: 50%
+                left: 50%
+                transform: translate(-50%, -50%)
                 width: 1.6rem
                 height: 1.6rem
                 border-radius: 50%
@@ -78,11 +79,36 @@
                 background: linear-gradient(to right, red 0%, #ff0 17%, lime 33%, cyan 50%, blue 66%, #f0f 83%, red 100%)
                 &_pointer
                     position: absolute
-                    top: -.5rem
-                    left: -.6rem
+                    top: 50%
+                    left: 50%
+                    transform: translate(-50%, -50%)
                     width: 1.2rem
                     height: 3rem
                     border-radius: .5rem
                     border: .2rem solid $color-white
                     box-shadow: 0 0 .1rem .1rem $color-light-grey
                     background-color: rgb(255, 0, 0)
+    &__color-custom-information
+        display: flex
+        justify-content: center
+        width: 22rem
+        text-align: center
+    &__color-custom-information-hex
+        width: 10rem
+    &__color-custom-information-fields
+        display: flex
+        justify-content: center
+        width: 12rem
+        &_item-r
+            width: 4rem
+        &_item-g
+            width: 4rem
+        &_item-b
+            width: 4rem
+
+.hex-input, .color-fields-input
+    width: 100%
+    border-radius: .5rem
+    border: .2rem solid $color-light-grey
+    font-size: 1.6rem
+    text-align: center
