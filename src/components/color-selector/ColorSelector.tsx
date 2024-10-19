@@ -57,7 +57,7 @@ const findColor = (from: any, to: any, leftDistRatio: any) => {
 
 const findRgbFromMouse = (event: any, ref: any, spectrum: any) => {
     const { left, width } = ref.current.getBoundingClientRect();
-    const leftDistance = Math.min(Math.max(event.clientX - left, 0), width - 1);
+    const leftDistance = Math.min(Math.max(event.pageX - left, 0), width - 1);
     const rangeWidth = width / spectrum.length;
     const includedRange = Math.floor(leftDistance / rangeWidth);
     const leftDistRatio = ((leftDistance % rangeWidth) / rangeWidth).toFixed(2);
@@ -80,17 +80,18 @@ const adjustSaturation = ({ r, g, b }: any) => (ratio: any, adjustmentFn: any) =
 }
 
 const saturate = (rgb: any, e: any, ref: any) => {
+    console.log(rgb)
     const { top, height, left, width } = ref.current.getBoundingClientRect();
-    const topDistance = Math.min(Math.max(e.clientY - top, 0), height);
-    const leftDistance = Math.min(Math.max(e.clientX - left, 0), width);
+    const topDistance = Math.min(Math.max(e.pageY - top, 0), height);
+    const leftDistance = Math.min(Math.max(e.pageX - left, 0), width);
     const topDistRatio: number = Number((topDistance / height).toFixed(2));
     const leftDistRatio: number = Number((leftDistance / width).toFixed(2));
     if (topDistRatio > 0) {
         const darknessRatio = topDistRatio;
         return adjustSaturation(rgb)(darknessRatio, darken);
     }
-    if (leftDistRatio < 1) {
-        const whitenessRatio = (1 - leftDistRatio) / 1;
+    if (leftDistRatio < .5) {
+        const whitenessRatio = (.5 - leftDistRatio) / .5;
         return adjustSaturation(rgb)(whitenessRatio, whiten);
     }
     return rgb;
@@ -254,18 +255,34 @@ function ColorSelector(props: any) {
         const { id } = event.target;
 
         if (id === "swatchPointer" || id === "slider") {
+            const { x, y } = boxRef.current?.getBoundingClientRect() || { x: 0, y: 0 };
+            const rgb = findRgbFromMouse(event, swatchSliderRef, spectrumRanges);
             setSwatchPointer(
                 convertPxsToProcents(
                     event.pageX - (swatchSliderRef.current?.getBoundingClientRect().left || 0),
                     swatchSliderRef.current?.clientWidth || 0
                 )
             );
-            const rgb = findRgbFromMouse(event, swatchSliderRef, spectrumRanges);
             setBackgroundColor(rgb);
             setSpectrum([{ from: [...spectrum[0].from], to: [rgb.r, rgb.g, rgb.b] }]);
+
+            const rgb2 = findRgbFromMouse({
+                pageX: convertProcentsToPxs(boxPointerLeft, boxRef.current?.clientWidth || 0) + x,
+                pageY: convertProcentsToPxs(boxPointerTop, boxRef.current?.clientHeight || 0) + y
+            }, boxRef, [{ from: [...spectrum[0].from], to: [rgb.r, rgb.g, rgb.b] }]);
+
+            setActivColor(saturate(rgb2, {
+                pageX: convertProcentsToPxs(boxPointerLeft, boxRef.current?.clientWidth || 0) + x,
+                pageY: convertProcentsToPxs(boxPointerTop, boxRef.current?.clientHeight || 0) + y
+            }, boxRef));
+            setInputHex(rgbToHex(saturate(rgb2, {
+                pageX: convertProcentsToPxs(boxPointerLeft, boxRef.current?.clientWidth || 0) + x,
+                pageY: convertProcentsToPxs(boxPointerTop, boxRef.current?.clientHeight || 0) + y
+            }, boxRef)));
         }
 
         if (id === "boxPointer" || id === "box") {
+            const rgb = findRgbFromMouse(event, boxRef, spectrum);
             setBoxPointerLeft(
                 convertPxsToProcents(
                     event.pageX - (boxRef.current?.getBoundingClientRect().left || 0),
@@ -278,7 +295,6 @@ function ColorSelector(props: any) {
                     boxRef.current?.clientHeight || 0
                 )
             );
-            const rgb = findRgbFromMouse(event, boxRef, spectrum);
             setActivColor(saturate(rgb, event, boxRef));
             setInputHex(rgbToHex(saturate(rgb, event, boxRef)));
         }
@@ -302,13 +318,19 @@ function ColorSelector(props: any) {
                 );
                 setBackgroundColor(rgb);
                 setSpectrum([{ from: [...spectrum[0].from], to: [rgb.r, rgb.g, rgb.b] }]);
-                setActivColor(saturate(rgb, {
-                    clientX: convertProcentsToPxs(boxPointerLeft, boxRef.current?.clientWidth || 0) + x,
-                    clientY: convertProcentsToPxs(boxPointerTop, boxRef.current?.clientHeight || 0) + y
+
+                const rgb2 = findRgbFromMouse({
+                    pageX: convertProcentsToPxs(boxPointerLeft, boxRef.current?.clientWidth || 0) + x,
+                    pageY: convertProcentsToPxs(boxPointerTop, boxRef.current?.clientHeight || 0) + y
+                }, boxRef, [{ from: [...spectrum[0].from], to: [rgb.r, rgb.g, rgb.b] }]);
+
+                setActivColor(saturate(rgb2, {
+                    pageX: convertProcentsToPxs(boxPointerLeft, boxRef.current?.clientWidth || 0) + x,
+                    pageY: convertProcentsToPxs(boxPointerTop, boxRef.current?.clientHeight || 0) + y
                 }, boxRef));
-                setInputHex(rgbToHex(saturate(rgb, {
-                    clientX: convertProcentsToPxs(boxPointerLeft, boxRef.current?.clientWidth || 0) + x,
-                    clientY: convertProcentsToPxs(boxPointerTop, boxRef.current?.clientHeight || 0) + y
+                setInputHex(rgbToHex(saturate(rgb2, {
+                    pageX: convertProcentsToPxs(boxPointerLeft, boxRef.current?.clientWidth || 0) + x,
+                    pageY: convertProcentsToPxs(boxPointerTop, boxRef.current?.clientHeight || 0) + y
                 }, boxRef)));
             }
 
@@ -376,12 +398,12 @@ function ColorSelector(props: any) {
         if (color) {
             const { h, s, v } = rgbToHsv(color);
             const x = convertPxsToProcents(h, 360);
-            const clientX = convertProcentsToPxs(x, swatchSliderRef.current?.clientWidth || 0);
+            const pageX = convertProcentsToPxs(x, swatchSliderRef.current?.clientWidth || 0);
             const refX = swatchSliderRef.current?.getBoundingClientRect().x || 0;
-            const rgb = findRgbFromMouse({ clientX: clientX + refX }, swatchSliderRef, spectrumRanges);
+            const rgb = findRgbFromMouse({ pageX: pageX + refX }, swatchSliderRef, spectrumRanges);
 
             setActivColor(color);
-            id === "r" || id === "g" || id === "b" && setInputHex(rgbToHex(color));
+            (id === "r" || id === "g" || id === "b") && setInputHex(rgbToHex(color));
             setSwatchPointer(x);
             setBoxPointerLeft(s);
             setBoxPointerTop(100 - v);

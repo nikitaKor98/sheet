@@ -38,23 +38,25 @@ function Dropdown(props: any) {
                 onChange={e => setIsOpen(e.target.checked)}
             />
             <Button onClick={onClose}>
-                {renderContent(value)}
+                {renderContent && renderContent(value, data)}
                 {isArrow && <SvgCaretDown />}
                 {children && children}
             </Button>
-            <ul className={className + type}>
-                {isOpen && items.map((item: any) =>
-                    <li
-                        className={`${className + type}-item ${item === value ? "active" : ""}`}
-                        onClick={() => {
-                            setValue(item);
-                            onClose();
-                        }}
-                        key={item}>{renderContent(item, data)}
-                    </li>
-                )
-                }
-            </ul>
+            {renderContent ?
+                <ul className={className + type}>
+                    {isOpen && items.map((item: any) =>
+                        <li
+                            className={`${className + type}-item ${item === value ? "active" : ""}`}
+                            onClick={() => {
+                                setValue(item);
+                                onClose();
+                            }}
+                            key={item}>{renderContent(item, data)}
+                        </li>
+                    )}
+                </ul> :
+                <div className={`${className + type}`}
+                >{isOpen && items}</div>}
         </div >
     )
 }
