@@ -23,15 +23,21 @@
         height: 100%
         z-index: 100
         &_up
-            width: 20rem
+            width: 0
             display: list-item
             position: absolute
             list-style: none
             border-radius: .5rem
             background-color: $color-white
             box-shadow: $box-shadow
+            transition: all .2s
+            opacity: 0
         &_up-item
             width: 20rem
         &_checked
             visibility: hidden
             width: 0
+        &_checked:checked ~ &_up
+            opacity: 1
+            width: 20rem
+            padding: .5rem
