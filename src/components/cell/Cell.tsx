@@ -1,13 +1,15 @@
+import React from "react";
 import { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-import { useTableContext } from "providers/tableProvider";
+import { updateCell, updateColumns, updateRows } from "features/table/tableSlice";
 
 function Cell(props: any) {
 
     const {
         idCell,
         className,
-        children,
+        type,
         cellWidth,
         cellHeight,
         setCellWidth,
@@ -15,14 +17,17 @@ function Cell(props: any) {
         setShowPositionLineX,
         setLineX,
         setShowPositionLineY,
-        setLineY
+        setLineY,
+        selectionCell
     } = props;
 
     const cellRef = useRef<HTMLDivElement>(null);
 
-    const { updateCell, table } = useTableContext();
+    const cell = useSelector((store: any) => store.table.cells[idCell]);
+    const column = useSelector((store: any) => store.table.columns[idCell.replace(/[^A-Z]/g, "")]);
+    const row = useSelector((store: any) => store.table.rows[idCell.replace(/\D/g, "")]);
 
-    const id = Number(idCell[0]) ? idCell : idCell.slice(1, idCell.length);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         if (cellRef.current) {
@@ -64,7 +69,8 @@ function Cell(props: any) {
         }
 
         const handelMouseUp = () => {
-            updateCell(endLine - startLine + widthOrHeight, prop, id);
+            if (prop === "width") dispatch(updateColumns({ [id]: { [prop]: endLine - startLine + widthOrHeight } }));
+            if (prop === "height") dispatch(updateRows({ [id]: { [prop]: endLine - startLine + widthOrHeight } }));
             setShowPositionLineX(false);
             setShowPositionLineY(false);
             window.removeEventListener("mousemove", handelMouseMove);
@@ -78,21 +84,34 @@ function Cell(props: any) {
     return (
         <div
             ref={cellRef}
-            className="cell">
+            className="cell"
+            id={idCell}
+        >
             <div
                 style={{
-                    width: `${table[idCell[0]] ? table[idCell[0]].width : className.split("__")[1].split("_")[0] === "left" ? "100%" : cellWidth}px`,
-                    height: `${table[id] && table[id].height}px`
+                    width: `${column ? column.width : className.split("__")[1].split("_")[0] === "left" ? "100%" : cellWidth}px`,
+                    height: `${row && row.height}px`
                 }}
-                className={className}>
-                {children}
+                className={className}
+            >
+                {type === "web_change" ? <input
+                    className="sheet__cell-input"
+                    value={cell ? cell.value : ""}
+                    onChange={(e: any) => {
+                        dispatch(updateCell({
+                            [idCell]: { value: e.target.value }
+                        }));
+                    }}
+                    onClick={() => selectionCell(idCell)}
+                /> : idCell}
             </div>
             <div
                 id={idCell}
                 onMouseDown={handleMouseDown}
-                className={"resizer resizer__" + className.split("__")[1].split("_")[0]} ></div>
+                className={"resizer resizer__" + className.split("__")[1].split("_")[0]} >
+            </div>
         </div >
-    )
+    );
 }
 
-export default Cell;
+export default React.memo(Cell);

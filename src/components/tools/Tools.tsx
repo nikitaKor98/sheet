@@ -26,8 +26,6 @@ import { ReactComponent as BorderOuter } from "../../assets/icon/border-outer.sv
 import { ReactComponent as BorderRight } from "../../assets/icon/border-right.svg";
 import { ReactComponent as BorderNone } from "../../assets/icon/border-none.svg";
 import { ReactComponent as BorderTop } from "../../assets/icon/border-top.svg";
-import { ReactComponent as CaretDown } from "../../assets/icon/caret-down.svg";
-
 
 function Tools() {
 

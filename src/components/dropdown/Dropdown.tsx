@@ -30,34 +30,37 @@ function Dropdown(props: any) {
     }, [dropdownRef, onClose, isOpen]);
 
     return (
-        <div ref={dropdownRef} className={`${className}`}>
-            <input
-                type="checkbox"
-                className={`${className}_checked`}
-                checked={isOpen}
-                onChange={e => setIsOpen(e.target.checked)}
-            />
-            <Button onClick={onClose}>
-                {renderContent && renderContent(value, data)}
-                {isArrow && <SvgCaretDown />}
-                {children && children}
-            </Button>
-            {renderContent ?
-                <ul className={className + type}>
-                    {isOpen && items.map((item: any) =>
-                        <li
-                            className={`${className + type}-item ${item === value ? "active" : ""}`}
-                            onClick={() => {
-                                setValue(item);
-                                onClose();
-                            }}
-                            key={item}>{renderContent(item, data)}
-                        </li>
-                    )}
-                </ul> :
-                <div className={`${className + type}`}
-                >{isOpen && items}</div>}
-        </div >
+        <>
+            {/* {isOpen && <div className="backdrop"></div>} */}
+            <div ref={dropdownRef} className={`${className}`}>
+                <input
+                    type="checkbox"
+                    className={`${className}_checked`}
+                    checked={isOpen}
+                    onChange={e => setIsOpen(e.target.checked)}
+                />
+                <Button onClick={onClose}>
+                    {renderContent && renderContent(value, data)}
+                    {isArrow && <SvgCaretDown />}
+                    {children && children}
+                </Button>
+                {renderContent ?
+                    <ul className={className + type}>
+                        {isOpen && items.map((item: any) =>
+                            <li
+                                className={`${className + type}-item ${item === value ? "active" : ""}`}
+                                onClick={() => {
+                                    setValue(item);
+                                    onClose();
+                                }}
+                                key={item}>{renderContent(item, data)}
+                            </li>
+                        )}
+                    </ul> :
+                    <div className={`${className + type}`}
+                    >{isOpen && items}</div>}
+            </div >
+        </>
     )
 }
 
