@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
 import Cell from "components/cell/Cell";
+import SelectionBorder from "components/selection-border/SelectionBorder";
+import { useSelectionCell } from "hooks/useSelectionCell";
 
 function Sheet(props: any) {
 
@@ -22,6 +24,8 @@ function Sheet(props: any) {
     const scrollbarRefX = useRef<HTMLDivElement>(null);
     const scrollbarRefY = useRef<HTMLDivElement>(null);
     const sheetRef = useRef<HTMLDivElement>(null);
+
+    const selectionCell = useSelectionCell();
 
     useEffect(() => {
 
@@ -51,12 +55,12 @@ function Sheet(props: any) {
 
     }, [headerHeight, sheetMenuHeight]);
 
-    const renderContent = (value: any, type: string) => {
+    const renderContent = (type: string) => {
 
         let i = 0;
         numberColumn.splice(0, numberColumn.length);
 
-        while (i < value) {
+        while (i < dataNumber) {
             i++;
             if (type === "web_change") {
                 const data: any = dataLetters.map(letter => letter + i);
@@ -65,10 +69,11 @@ function Sheet(props: any) {
                 numberColumn.push(i);
             }
         }
-        return numberColumn.map((id: number) =>
+        return numberColumn.map((id: number) => (
             <Cell
                 key={id}
                 idCell={`${id}`}
+                type={type}
                 setLineX={setLineX}
                 setShowPositionLineX={setShowPositionLineX}
                 setLineY={setLineY}
@@ -77,9 +82,9 @@ function Sheet(props: any) {
                 cellHeight={cellHeightLetter}
                 setCellWidth={setCellWidthLetter}
                 setCellHeight={setCellHeightLetter}
+                selectionCell={selectionCell}
                 className={`sheet__${type}`}>
-                {type === "web_change" ? <input className="sheet__cell-input" /> : `${id}`}
-            </Cell>);
+            </Cell>));
     }
 
     const handleScroll = (scroll: any) => {
@@ -140,16 +145,16 @@ function Sheet(props: any) {
                         setCellWidth={setCellWidthLetter}
                         setCellHeight={setCellHeightLetter}
                         className={"sheet__top_letter"}>
-                        {letter}
                     </Cell>)}
             </div>
             <div
                 ref={scrollRefLeft}
                 onScroll={handleScrollLeft}
                 className="sheet__left">
-                {renderContent(dataNumber, "left_number")}
+                {renderContent("left_number")}
             </div>
             <div
+                id="web"
                 ref={scrollRefWeb}
                 onScroll={handleScroll}
                 className="sheet__web"
@@ -157,7 +162,8 @@ function Sheet(props: any) {
                     gridTemplateColumns: `repeat(${dataLetters.length}, min-content)`,
                     gridTemplateRows: `repeat(${numberColumn.length}, min-content)`
                 }}>
-                {renderContent(dataNumber, "web_change")}
+                <SelectionBorder />
+                {renderContent("web_change")}
             </div>
             <div
                 ref={scrollbarRefY}

@@ -1,15 +1,6 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import Button from "components/button/Button";
-
-const spectrumRanges = [
-    { from: [255, 0, 0], to: [255, 255, 0] },
-    { from: [255, 255, 0], to: [0, 255, 0] },
-    { from: [0, 255, 0], to: [0, 255, 255] },
-    { from: [0, 255, 255], to: [0, 0, 255] },
-    { from: [0, 0, 255], to: [255, 0, 255] },
-    { from: [255, 0, 255], to: [255, 0, 0] }
-];
 
 const hexToRgb = (hex: any) => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -31,12 +22,15 @@ const setDarkOrLight = (hex: any) => {
     }
 }
 
+const restrictValue = (value: number, min: number, max: number) =>
+    value <= min ? 0 : value >= max ? max - min : value - min;
+
 const isValidRgbColor = (value: any) => {
     return value >= 0 && value <= 255;
 }
 
 const isValidHexColor = (color: any) => {
-    return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color);
+    return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color.length >= 6 && color);
 }
 
 const rgbToHex = ({ r, g, b }: any) => {
@@ -44,98 +38,106 @@ const rgbToHex = ({ r, g, b }: any) => {
 }
 
 const convertPxsToProcents = (value: number, maxValue: number): number => {
-    return Math.floor(100 * value / maxValue);
+    return 100 * value / maxValue;
 }
 
 const convertProcentsToPxs = (value: number, maxValue: number): number => {
-    return Math.floor(value * maxValue / 100);
-}
-
-const findColor = (from: any, to: any, leftDistRatio: any) => {
-    return Math.round(from + (to - from) * leftDistRatio);
-}
-
-const findRgbFromMouse = (event: any, ref: any, spectrum: any) => {
-    const { left, width } = ref.current.getBoundingClientRect();
-    const leftDistance = Math.min(Math.max(event.pageX - left, 0), width - 1);
-    const rangeWidth = width / spectrum.length;
-    const includedRange = Math.floor(leftDistance / rangeWidth);
-    const leftDistRatio = ((leftDistance % rangeWidth) / rangeWidth).toFixed(2);
-    const { from, to } = spectrum[includedRange];
-    return {
-        r: findColor(from[0], to[0], leftDistRatio),
-        g: findColor(from[1], to[1], leftDistRatio),
-        b: findColor(from[2], to[2], leftDistRatio)
-    }
-}
-
-const darken = (color: any, ratio: any) => Math.round((1 - ratio) * color);
-const whiten = (color: any, ratio: any) => Math.round(color + (255 - color) * ratio);
-const adjustSaturation = ({ r, g, b }: any) => (ratio: any, adjustmentFn: any) => {
-    return {
-        r: adjustmentFn(r, ratio),
-        g: adjustmentFn(g, ratio),
-        b: adjustmentFn(b, ratio)
-    }
-}
-
-const saturate = (rgb: any, e: any, ref: any) => {
-    console.log(rgb)
-    const { top, height, left, width } = ref.current.getBoundingClientRect();
-    const topDistance = Math.min(Math.max(e.pageY - top, 0), height);
-    const leftDistance = Math.min(Math.max(e.pageX - left, 0), width);
-    const topDistRatio: number = Number((topDistance / height).toFixed(2));
-    const leftDistRatio: number = Number((leftDistance / width).toFixed(2));
-    if (topDistRatio > 0) {
-        const darknessRatio = topDistRatio;
-        return adjustSaturation(rgb)(darknessRatio, darken);
-    }
-    if (leftDistRatio < .5) {
-        const whitenessRatio = (.5 - leftDistRatio) / .5;
-        return adjustSaturation(rgb)(whitenessRatio, whiten);
-    }
-    return rgb;
+    return value * maxValue / 100;
 }
 
 function rgbToHsv({ r, g, b }: any) {
-    let rabs = r / 255;
-    let gabs = g / 255;
-    let babs = b / 255;
-    let v = Math.max(rabs, gabs, babs);
-    let diff = v - Math.min(rabs, gabs, babs);
-    let diffc = (c: any) => (v - c) / 6 / diff + 1 / 2;
-    let percentRoundFn = (num: any) => Math.round(num * 100 / 100);
 
-    let h, s;
+    const percentRoundFn = (num: any) => num * 100 / 100;
 
-    if (diff == 0) {
-        h = s = 0;
-    } else {
-        s = diff / v;
-        let rr = diffc(rabs);
-        let gg = diffc(gabs);
-        let bb = diffc(babs);
+    let max = Math.max(r, g, b), min = Math.min(r, g, b),
+        d = max - min,
+        h,
+        s = (max === 0 ? 0 : d / max),
+        v = max / 255;
 
-        if (rabs === v) {
-            h = bb - gg;
-        } else if (gabs === v) {
-            h = (1 / 3) + rr - bb;
-        } else if (babs === v) {
-            h = (2 / 3) + gg - rr;
-        }
-
-        if (Number(h) < 0) {
-            h = Number(h) + 1;
-        } else if (Number(h) > 1) {
-            h = Number(h) - 1;
-        }
+    switch (max) {
+        case min: h = 0; break;
+        case r: h = (g - b) + d * (g < b ? 6 : 0); h /= 6 * d; break;
+        case g: h = (b - r) + d * 2; h /= 6 * d; break;
+        case b: h = (r - g) + d * 4; h /= 6 * d; break;
     }
 
     return {
-        h: Math.round(Number(h) * 360),
+        h: Number(h) * 360,
         s: percentRoundFn(s * 100),
         v: percentRoundFn(v * 100)
-    };
+    }
+}
+
+const hsvToRgb = ({ h, s, v }: any) => {
+    let r, g, b;
+    let i;
+    let f, p, q, t;
+
+    h = Math.max(0, Math.min(359, h));
+    s = Math.max(0, Math.min(100, s));
+    v = Math.max(0, Math.min(100, v));
+    s /= 100;
+    v /= 100;
+
+    if (s == 0) {
+        r = g = b = v;
+        return {
+            r: Math.round(r * 255),
+            g: Math.round(g * 255),
+            b: Math.round(b * 255)
+        };
+    }
+
+    h /= 60;
+    i = Math.floor(h);
+    f = h - i;
+    p = v * (1 - s);
+    q = v * (1 - s * f);
+    t = v * (1 - s * (1 - f));
+
+    switch (i) {
+        case 0:
+            r = v;
+            g = t;
+            b = p;
+            break;
+
+        case 1:
+            r = q;
+            g = v;
+            b = p;
+            break;
+
+        case 2:
+            r = p;
+            g = v;
+            b = t;
+            break;
+
+        case 3:
+            r = p;
+            g = q;
+            b = v;
+            break;
+
+        case 4:
+            r = t;
+            g = p;
+            b = v;
+            break;
+
+        default:
+            r = v;
+            g = p;
+            b = q;
+    }
+
+    return {
+        r: Math.round(r * 255),
+        g: Math.round(g * 255),
+        b: Math.round(b * 255)
+    }
 }
 
 function ColorSelector(props: any) {
@@ -226,18 +228,7 @@ function ColorSelector(props: any) {
     }
 
     const [colorСheckBox, setColorСheckBox] = useState("#fff");
-    const [backgroundColor, setBackgroundColor] = useState({ r: 255, g: 0, b: 0 });
-    const [activColor, setActivColor] = useState({ r: 255, g: 0, b: 0 });
-    const [inputHex, setInputHex] = useState("#ff0000");
-    const [spectrum, setSpectrum] = useState([
-        { from: [255, 255, 255], to: [255, 0, 0] }
-    ]);
     const [isOpen, setIsOpen] = useState(false);
-    const [swatchPointer, setSwatchPointer] = useState(0);
-    const [boxPointerLeft, setBoxPointerLeft] = useState(0);
-    const [boxPointerTop, setBoxPointerTop] = useState(0);
-
-    const { r, g, b } = backgroundColor;
 
     const boxRef = useRef<HTMLDivElement>(null);
     const swatchSliderRef = useRef<HTMLDivElement>(null);
@@ -250,121 +241,65 @@ function ColorSelector(props: any) {
         setIsOpen(!isOpen)
     }
 
-    const handelMouseDown = (event: any) => {
+    const [sliderPosition, setSliderPosition] = useState<number>(0);
+    const [boxPosition, setBoxPosition] = useState<any>({ s: 0, v: 100 });
+    const [hexInput, setHexInput] = useState<any>(rgbToHex(hsvToRgb({ h: sliderPosition, ...boxPosition })));
 
-        const { id } = event.target;
+    useEffect(() => {
+        isValidHexColor(hexInput) && setHexInput(rgbToHex(activColor));
+    }, [sliderPosition, boxPosition]);
 
-        if (id === "swatchPointer" || id === "slider") {
-            const { x, y } = boxRef.current?.getBoundingClientRect() || { x: 0, y: 0 };
-            const rgb = findRgbFromMouse(event, swatchSliderRef, spectrumRanges);
-            setSwatchPointer(
+    const backgroundColor = hsvToRgb({
+        h: convertProcentsToPxs(sliderPosition, 360),
+        s: 100,
+        v: 100
+    });
+
+    const activColor = hsvToRgb({
+        h: convertProcentsToPxs(sliderPosition, 360),
+        s: boxPosition.s,
+        v: 100 - boxPosition.v
+    });
+
+    const {
+        left: sliderLeft,
+        right: sliderRight,
+        width: sliderWidth,
+    } = swatchSliderRef?.current?.getBoundingClientRect() || {
+        left: 0,
+        width: 0,
+        right: 0,
+    };
+
+    const {
+        left: boxLeft,
+        right: boxRight,
+        width: boxWidth,
+        top: boxTop,
+        bottom: boxBottom,
+        height: boxHeight
+    } = boxRef.current?.getBoundingClientRect() || {
+        left: 0, right: 0, width: 0,
+        top: 0,
+        bottom: 0,
+        height: 0
+    };
+
+    const handleSliderMouseDown = ({ pageX }: any) => {
+        setSliderPosition(
+            convertPxsToProcents(
+                restrictValue(pageX, sliderLeft, sliderRight),
+                sliderWidth
+            )
+        );
+
+        const handelMouseMove = ({ pageX }: any) => {
+            setSliderPosition(
                 convertPxsToProcents(
-                    event.pageX - (swatchSliderRef.current?.getBoundingClientRect().left || 0),
-                    swatchSliderRef.current?.clientWidth || 0
+                    restrictValue(pageX, sliderLeft, sliderRight),
+                    sliderWidth
                 )
             );
-            setBackgroundColor(rgb);
-            setSpectrum([{ from: [...spectrum[0].from], to: [rgb.r, rgb.g, rgb.b] }]);
-
-            const rgb2 = findRgbFromMouse({
-                pageX: convertProcentsToPxs(boxPointerLeft, boxRef.current?.clientWidth || 0) + x,
-                pageY: convertProcentsToPxs(boxPointerTop, boxRef.current?.clientHeight || 0) + y
-            }, boxRef, [{ from: [...spectrum[0].from], to: [rgb.r, rgb.g, rgb.b] }]);
-
-            setActivColor(saturate(rgb2, {
-                pageX: convertProcentsToPxs(boxPointerLeft, boxRef.current?.clientWidth || 0) + x,
-                pageY: convertProcentsToPxs(boxPointerTop, boxRef.current?.clientHeight || 0) + y
-            }, boxRef));
-            setInputHex(rgbToHex(saturate(rgb2, {
-                pageX: convertProcentsToPxs(boxPointerLeft, boxRef.current?.clientWidth || 0) + x,
-                pageY: convertProcentsToPxs(boxPointerTop, boxRef.current?.clientHeight || 0) + y
-            }, boxRef)));
-        }
-
-        if (id === "boxPointer" || id === "box") {
-            const rgb = findRgbFromMouse(event, boxRef, spectrum);
-            setBoxPointerLeft(
-                convertPxsToProcents(
-                    event.pageX - (boxRef.current?.getBoundingClientRect().left || 0),
-                    boxRef.current?.clientWidth || 0
-                )
-            );
-            setBoxPointerTop(
-                convertPxsToProcents(
-                    event.pageY - (boxRef.current?.getBoundingClientRect().top || 0),
-                    boxRef.current?.clientHeight || 0
-                )
-            );
-            setActivColor(saturate(rgb, event, boxRef));
-            setInputHex(rgbToHex(saturate(rgb, event, boxRef)));
-        }
-
-        const handelMouseMove = (event: any) => {
-            if (id === "swatchPointer" || id === "slider") {
-                const rgb = findRgbFromMouse(event, swatchSliderRef, spectrumRanges);
-                const { x, y } = boxRef.current?.getBoundingClientRect() || { x: 0, y: 0 };
-                const {
-                    left: rangeLeft,
-                    right: rangeRight
-                } = swatchSliderRef.current?.getBoundingClientRect() || { left: 0, right: 0 };
-                const pageX = event.pageX <= rangeLeft
-                    ? 0
-                    : event.pageX >= rangeRight
-                        ? rangeRight - rangeLeft
-                        : event.pageX - rangeLeft;
-
-                setSwatchPointer(
-                    convertPxsToProcents(pageX, swatchSliderRef.current?.clientWidth || 0)
-                );
-                setBackgroundColor(rgb);
-                setSpectrum([{ from: [...spectrum[0].from], to: [rgb.r, rgb.g, rgb.b] }]);
-
-                const rgb2 = findRgbFromMouse({
-                    pageX: convertProcentsToPxs(boxPointerLeft, boxRef.current?.clientWidth || 0) + x,
-                    pageY: convertProcentsToPxs(boxPointerTop, boxRef.current?.clientHeight || 0) + y
-                }, boxRef, [{ from: [...spectrum[0].from], to: [rgb.r, rgb.g, rgb.b] }]);
-
-                setActivColor(saturate(rgb2, {
-                    pageX: convertProcentsToPxs(boxPointerLeft, boxRef.current?.clientWidth || 0) + x,
-                    pageY: convertProcentsToPxs(boxPointerTop, boxRef.current?.clientHeight || 0) + y
-                }, boxRef));
-                setInputHex(rgbToHex(saturate(rgb2, {
-                    pageX: convertProcentsToPxs(boxPointerLeft, boxRef.current?.clientWidth || 0) + x,
-                    pageY: convertProcentsToPxs(boxPointerTop, boxRef.current?.clientHeight || 0) + y
-                }, boxRef)));
-            }
-
-            if (id === "boxPointer" || id === "box") {
-                const rgb = findRgbFromMouse(event, boxRef, spectrum);
-                const {
-                    left: boxLeftSide,
-                    right: boxRightSide
-                } = boxRef.current?.getBoundingClientRect() || { left: 0, right: 0 };
-                const pageX = event.pageX <= boxLeftSide
-                    ? 0
-                    : event.pageX >= boxRightSide
-                        ? boxRightSide - boxLeftSide
-                        : event.pageX - boxLeftSide;
-
-                const {
-                    top: boxTopSide,
-                    bottom: boxBottomSide
-                } = boxRef.current?.getBoundingClientRect() || { top: 0, bottom: 0 };
-                const pageY = event.pageY <= boxTopSide
-                    ? 0
-                    : event.pageY >= boxBottomSide
-                        ? boxBottomSide - boxTopSide
-                        : event.pageY - boxTopSide;
-
-                setBoxPointerLeft(
-                    convertPxsToProcents(pageX, boxRef.current?.clientWidth || 0)
-                );
-                setBoxPointerTop(
-                    convertPxsToProcents(pageY, boxRef.current?.clientHeight || 0)
-                );
-                setActivColor(saturate(rgb, event, boxRef));
-                setInputHex(rgbToHex(saturate(rgb, event, boxRef)));
-            }
         };
 
         const handelMouseUp = () => {
@@ -374,44 +309,62 @@ function ColorSelector(props: any) {
 
         window.addEventListener("mousemove", handelMouseMove);
         window.addEventListener("mouseup", handelMouseUp);
-    }
+    };
+
+    const handleBoxMouseDown = ({ pageX, pageY }: any) => {
+        setBoxPosition({
+            s: convertPxsToProcents(
+                restrictValue(pageX, boxLeft, boxRight),
+                boxWidth
+            ),
+            v: convertPxsToProcents(
+                restrictValue(pageY, boxTop, boxBottom),
+                boxHeight
+            )
+        }
+        );
+
+        const handelMouseMove = ({ pageX, pageY }: any) => {
+            setBoxPosition({
+                s: convertPxsToProcents(
+                    restrictValue(pageX, boxLeft, boxRight),
+                    boxWidth
+                ),
+                v: convertPxsToProcents(
+                    restrictValue(pageY, boxTop, boxBottom),
+                    boxHeight
+                )
+            }
+            );
+        };
+
+        const handelMouseUp = () => {
+            window.removeEventListener("mousemove", handelMouseMove);
+            window.removeEventListener("mouseup", handelMouseUp);
+        };
+
+        window.addEventListener("mousemove", handelMouseMove);
+        window.addEventListener("mouseup", handelMouseUp);
+    };
 
     const handleInputColor = (event: any) => {
         const { id, value } = event.target;
-        let color = null;
 
-        id === "hex" && setInputHex(value);
+        let color = { ...activColor, [id]: Number(isValidRgbColor(value) ? value : 255) };
 
-        if (id === "hex" && isValidHexColor(value)) {
-            color = hexToRgb(value) || { r: 0, g: 0, b: 0 };
-        }
-        if (id === "r" && isValidRgbColor(value)) {
-            color = { ...activColor, r: Number(value) };
-        }
-        if (id === "g" && isValidRgbColor(value)) {
-            color = { ...activColor, g: Number(value) };
-        }
-        if (id === "b" && isValidRgbColor(value)) {
-            color = { ...activColor, b: Number(value) };
+        if (id === "hex") {
+            setHexInput(value);
+            color = hexToRgb(isValidHexColor(value) && value) || { r: 0, g: 0, b: 0 };
         }
 
-        if (color) {
-            const { h, s, v } = rgbToHsv(color);
-            const x = convertPxsToProcents(h, 360);
-            const pageX = convertProcentsToPxs(x, swatchSliderRef.current?.clientWidth || 0);
-            const refX = swatchSliderRef.current?.getBoundingClientRect().x || 0;
-            const rgb = findRgbFromMouse({ pageX: pageX + refX }, swatchSliderRef, spectrumRanges);
+        const { h, s, v } = rgbToHsv(color);
 
-            setActivColor(color);
-            (id === "r" || id === "g" || id === "b") && setInputHex(rgbToHex(color));
-            setSwatchPointer(x);
-            setBoxPointerLeft(s);
-            setBoxPointerTop(100 - v);
-            setBackgroundColor(rgb);
-            setSpectrum([{ from: [...spectrum[0].from], to: [rgb.r, rgb.g, rgb.b] }]);
-        }
+        setSliderPosition(convertPxsToProcents(h, 360));
+        setBoxPosition({
+            s,
+            v: 100 - v
+        });
     }
-
 
     return (
         <div className="color-selector">
@@ -436,14 +389,14 @@ function ColorSelector(props: any) {
                 <div
                     ref={boxRef}
                     id="box"
-                    onMouseDown={handelMouseDown}
-                    style={{ backgroundColor: `rgb(${r}, ${g}, ${b})` }}
+                    onMouseDown={handleBoxMouseDown}
+                    style={{ backgroundColor: `rgb(${backgroundColor.r}, ${backgroundColor.g}, ${backgroundColor.b})` }}
                     className="color-selector__color-custom_box">
                     <div
                         ref={boxPointerRef}
                         id="boxPointer"
-                        style={{ left: `${boxPointerLeft}% `, top: `${boxPointerTop}% `, backgroundColor: `rgb(${activColor.r}, ${activColor.g}, ${activColor.b})` }}
-                        onMouseDown={handelMouseDown}
+                        style={{ left: `${boxPosition.s}% `, top: `${boxPosition.v}% `, backgroundColor: `rgb(${activColor.r}, ${activColor.g}, ${activColor.b})` }}
+                        onMouseDown={handleBoxMouseDown}
                         className="color-selector__color-custom_box_pointer"></div>
                 </div>
                 <div className="color-selector__color-custom_slider">
@@ -453,13 +406,13 @@ function ColorSelector(props: any) {
                     <div
                         ref={swatchSliderRef}
                         id="slider"
-                        onMouseDown={handelMouseDown}
+                        onMouseDown={handleSliderMouseDown}
                         className="color-selector__color-custom_slider_swatch-slider">
                         <div
                             ref={swatchPointerRef}
                             id="swatchPointer"
-                            style={{ left: `${swatchPointer}% `, backgroundColor: `rgb(${r}, ${g}, ${b})` }}
-                            onMouseDown={handelMouseDown}
+                            style={{ left: `${sliderPosition}% `, backgroundColor: `rgb(${backgroundColor.r}, ${backgroundColor.g}, ${backgroundColor.b})` }}
+                            onMouseDown={handleSliderMouseDown}
                             className="color-selector__color-custom_slider_swatch-slider_pointer"></div>
                     </div>
                 </div>
@@ -468,7 +421,7 @@ function ColorSelector(props: any) {
                         <input
                             className="hex-input"
                             id="hex"
-                            value={inputHex}
+                            value={hexInput}
                             onChange={handleInputColor}
                         />
                         <label>hex</label>

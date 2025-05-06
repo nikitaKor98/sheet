@@ -1,0 +1,46 @@
+@import "../../styles/base.sass"
+
+.selection-border
+    position: absolute
+    border-width: 0rem
+    padding: 0rem
+    height: 0rem
+    width: 0rem
+    z-index: 4
+    &__item-top
+        position: absolute
+        border: solid
+        border-color: $color-darck-green
+        border-top-width: .1rem
+        top: 0
+    &__item-left
+        position: absolute
+        border: solid
+        border-color: $color-darck-green
+        border-left-width: .1rem
+        left: 0
+    &__item-bottom
+        position: absolute
+        border: solid
+        border-color: $color-darck-green
+        border-bottom-width: .1rem
+        bottom: 0
+    &__item-right
+        position: absolute
+        border: solid
+        border-color: $color-darck-green
+        border-right-width: .1rem
+        right: 0
+
+.selected-cells
+    position: absolute
+    border-width: 0rem
+    padding: 0rem
+    height: 0rem
+    width: 0rem
+    z-index: 4
+    &__item
+        position: absolute
+        opacity: .3
+        background-color: $color-light-grey
+        // border: .1rem solid $color-darck-grey

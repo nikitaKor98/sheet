@@ -2,6 +2,25 @@ import { createContext, useContext } from "react";
 
 import { useTable } from "hooks/useTable";
 
+/**
+ * board
+ *  for (1000x1000)
+ *      <Cell  coord />
+ *          const {table, getColumn} = useTableContext();
+ * 
+ *        <div class="cell" style="width={getColumn(coord).width}">
+ *          if input
+ *              <input coord />
+ *          else
+ *              <customBlock coord
+ * 
+ * 
+ * input ({coord})
+ *     const {table, getCellByCoord} = useTableContext();
+ * 
+ *      const cell = getCellByCoord(coord)
+ */
+
 const TableContext = createContext<{
     table: any,
     updateCell: (cell: any, prop: any, cellWidth: any) => void
@@ -22,5 +41,6 @@ export function TableProvider({ children }: any) {
             table
         }}>
             {children}
-        </TableContext.Provider>)
+        </TableContext.Provider>
+    )
 }
