@@ -4,11 +4,12 @@ import Cell from "components/cell/Cell";
 import SelectionBorder from "components/selection-border/SelectionBorder";
 import { useSelectionCell } from "hooks/useSelectionCell";
 
+import { LETTERS } from "constants/letters";
+
 function Sheet(props: any) {
 
     const { headerHeight, sheetMenuHeight } = props;
 
-    const dataLetters = ["A", "B", "C", "D", "E", 'F', "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
     const [dataNumber, setDataNumber] = useState(100);
     const numberColumn: number[] = [];
     const [cellWidthLetter, setCellWidthLetter] = useState<number>();
@@ -63,7 +64,7 @@ function Sheet(props: any) {
         while (i < dataNumber) {
             i++;
             if (type === "web_change") {
-                const data: any = dataLetters.map(letter => letter + i);
+                const data: any = LETTERS.map(letter => letter + i);
                 numberColumn.push(...data);
             } else {
                 numberColumn.push(i);
@@ -127,12 +128,12 @@ function Sheet(props: any) {
             onWheel={handelWheel}
             style={{ width: `${window.innerWidth}` }}
             className="sheet">
-            <div style={{ width: `${cellWidthLetter && cellWidthLetter * dataLetters.length}px` }} />
+            <div style={{ width: `${cellWidthLetter && cellWidthLetter * LETTERS.length}px` }} />
             <div
                 ref={scrollRefTop}
                 onScroll={handleScrollTop}
                 className="sheet__top">
-                {dataLetters.map(letter =>
+                {LETTERS.map(letter =>
                     <Cell
                         key={letter}
                         idCell={letter}
@@ -159,7 +160,7 @@ function Sheet(props: any) {
                 onScroll={handleScroll}
                 className="sheet__web"
                 style={{
-                    gridTemplateColumns: `repeat(${dataLetters.length}, min-content)`,
+                    gridTemplateColumns: `repeat(${LETTERS.length}, min-content)`,
                     gridTemplateRows: `repeat(${numberColumn.length}, min-content)`
                 }}>
                 <SelectionBorder />
@@ -175,7 +176,7 @@ function Sheet(props: any) {
                 ref={scrollbarRefX}
                 onScroll={handleScrollTop}
                 className="sheet__scrollbar sheet__scrollbar_x">
-                <div style={{ width: `${cellWidthLetter && cellWidthLetter * dataLetters.length}px`, height: "1px" }} />
+                <div style={{ width: `${cellWidthLetter && cellWidthLetter * LETTERS.length}px`, height: "1px" }} />
             </div>
             {showPositionLineX && <div
                 style={{ left: `${lineX}px` }}

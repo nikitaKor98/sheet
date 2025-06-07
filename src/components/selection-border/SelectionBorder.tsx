@@ -3,9 +3,9 @@ import { useSelector } from "react-redux";
 
 import { useSelectionCell } from "hooks/useSelectionCell";
 
-function SelectionBorder(props: any) {
+function SelectionBorder() {
 
-    const [cell, setCell] = useState<any>();
+    const [cell, setCell] = useState<DOMRect | null>(null);
     const [webPosition, setWebPosition] = useState<any>();
 
     const activeCell = useSelector((store: any) => store.selectCell.activeCell);
@@ -13,10 +13,23 @@ function SelectionBorder(props: any) {
 
     const selectionCell = useSelectionCell();
 
+    // useEffect(() => {
+    //     setCell(document.getElementById(activeCell)?.getBoundingClientRect());
+    //     setWebPosition(document.getElementById("web")?.getBoundingClientRect());
+    // }, [activeCell]);
+
     useEffect(() => {
-        setCell(document.getElementById(activeCell)?.getBoundingClientRect());
         setWebPosition(document.getElementById("web")?.getBoundingClientRect());
-    }, [activeCell, props]);
+    }, []);
+
+    useEffect(() => {
+        if (activeCell) {
+            const cellEl = document.getElementById(activeCell);
+            if (cellEl) {
+                setCell(cellEl.getBoundingClientRect());
+            }
+        }
+    }, [activeCell]);
 
     return (
         <>
