@@ -8,6 +8,8 @@ import { LETTERS } from "constants/letters";
 const removeMatchingElements = (sourceArray: any, valuesToRemove: any) => {
     return valuesToRemove ? sourceArray.filter((item: string) => !valuesToRemove.includes(item)) : sourceArray;
 }
+const getColumnIndex = (cell: string) => LETTERS.indexOf(cell.replace(/\d+/g, ''));
+const getRowNumber = (cell: string) => parseInt(cell.replace(/\D/g, ''), 10);
 
 export function useSelectionCell() {
 
@@ -15,6 +17,9 @@ export function useSelectionCell() {
     const [shiftPress, setShiftPress] = useState<boolean>(false);
     const [cacheCells, setCacheCells] = useState<any>(null);
     const [invisibleCells, setInvisibleCells] = useState<any>(null);
+    const [isActive, setIsActive] = useState<boolean>(false);
+    const [startCell, setStartCell] = useState<string | null>();
+    const [currentCell, setCurrentCell] = useState<string | null>();
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -41,9 +46,60 @@ export function useSelectionCell() {
     const selectedCells = useSelector((store: any) => store.selectCell.selectedCells);
     const activeCell = useSelector((store: any) => store.selectCell.activeCell);
 
+    const dragAndDropCell = (id: string, type: string) => {
+
+        const handelMouseUp = () => {
+            setIsActive(false);
+            setStartCell(null);
+            setCurrentCell(null);
+            window.removeEventListener("mouseup", handelMouseUp);
+        }
+
+        if (type === "mousedown") {
+            setIsActive(true);
+            setStartCell(id);
+
+            dispatch(selectCell({ activeCell: id, selectedCells: [id] }));
+        }
+
+        if (type === "mousemove" && isActive && currentCell !== id) {
+            setCurrentCell(id);
+
+            const res = [];
+
+            if (startCell) {
+                const a = getColumnIndex(startCell);
+                const b = getColumnIndex(id);
+                const num1 = getRowNumber(startCell);
+                const num2 = getRowNumber(id);
+
+                const startCol = Math.min(a, b);
+                const endCol = Math.max(a, b) + 1;
+                const startRow = Math.min(num1, num2);
+                const endRow = Math.max(num1, num2);
+                const activeLetters = LETTERS.slice(startCol, endCol);
+
+                for (let i = startRow; i <= endRow; i++) {
+                    for (const letter of activeLetters) {
+                        res.push(`${letter}${i}`);
+                    }
+                }
+            }
+
+            dispatch(selectCell({ activeCell: startCell, selectedCells: res }));
+
+            window.addEventListener("mouseup", handelMouseUp);
+        }
+
+        // if (type === "mouseup") {
+        //     setIsActive(false);
+        //     setStartCell(null);
+        //     setCurrentCell(null);
+        //     console.log(id)
+        // }
+    }
+
     const selectionCell = useCallback((id: string) => {
-        const getColumnIndex = (cell: string) => LETTERS.indexOf(cell.replace(/\d+/g, ''));
-        const getRowNumber = (cell: string) => parseInt(cell.replace(/\D/g, ''), 10);
 
         const a = getColumnIndex(activeCell);
         const b = getColumnIndex(id);
@@ -104,5 +160,5 @@ export function useSelectionCell() {
 
     }, [selectedCells, activeCell, controlPress, shiftPress, cacheCells, dispatch]);
 
-    return selectionCell;
+    return { selectionCell, dragAndDropCell };
 } 

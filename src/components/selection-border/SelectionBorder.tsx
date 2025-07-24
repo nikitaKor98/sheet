@@ -11,7 +11,7 @@ function SelectionBorder() {
     const activeCell = useSelector((store: any) => store.selectCell.activeCell);
     const selectedCells = useSelector((store: any) => store.selectCell.selectedCells);
 
-    const selectionCell = useSelectionCell();
+    const { selectionCell } = useSelectionCell();
 
     // useEffect(() => {
     //     setCell(document.getElementById(activeCell)?.getBoundingClientRect());
