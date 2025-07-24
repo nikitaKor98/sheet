@@ -26,7 +26,7 @@ function Sheet(props: any) {
     const scrollbarRefY = useRef<HTMLDivElement>(null);
     const sheetRef = useRef<HTMLDivElement>(null);
 
-    const selectionCell = useSelectionCell();
+    const { selectionCell, dragAndDropCell } = useSelectionCell();
 
     useEffect(() => {
 
@@ -84,6 +84,7 @@ function Sheet(props: any) {
                 setCellWidth={setCellWidthLetter}
                 setCellHeight={setCellHeightLetter}
                 selectionCell={selectionCell}
+                dragAndDropCell={dragAndDropCell}
                 className={`sheet__${type}`}>
             </Cell>));
     }
