@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-import { useSelectionCell } from "hooks/useSelectionCell";
-
 function SelectionBorder() {
 
     const [cell, setCell] = useState<DOMRect | null>(null);
@@ -11,8 +9,6 @@ function SelectionBorder() {
     const activeCell = useSelector((store: any) => store.selectCell.activeCell);
     const selectedCells = useSelector((store: any) => store.selectCell.selectedCells);
 
-    const selectionCell = useSelectionCell();
-
     // useEffect(() => {
     //     setCell(document.getElementById(activeCell)?.getBoundingClientRect());
     //     setWebPosition(document.getElementById("web")?.getBoundingClientRect());
@@ -20,7 +16,7 @@ function SelectionBorder() {
 
     useEffect(() => {
         setWebPosition(document.getElementById("web")?.getBoundingClientRect());
-    }, []);
+    }, [activeCell, selectedCells]);
 
     useEffect(() => {
         if (activeCell) {
@@ -29,7 +25,7 @@ function SelectionBorder() {
                 setCell(cellEl.getBoundingClientRect());
             }
         }
-    }, [activeCell]);
+    }, [activeCell, selectedCells]);
 
     return (
         <>
@@ -57,7 +53,6 @@ function SelectionBorder() {
                     const position = document.getElementById(item)?.getBoundingClientRect();
                     return (
                         <div
-                            onClick={() => selectionCell(item)}
                             key={item}
                             id={item}
                             className={`selected-cells__item ${item}`}

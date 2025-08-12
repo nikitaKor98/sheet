@@ -18,7 +18,8 @@ function Cell(props: any) {
         setLineX,
         setShowPositionLineY,
         setLineY,
-        selectionCell
+        selectionCell,
+        dragAndDropCell
     } = props;
 
     const cellRef = useRef<HTMLDivElement>(null);
@@ -102,6 +103,8 @@ function Cell(props: any) {
                             [idCell]: { value: e.target.value }
                         }));
                     }}
+                    onMouseDown={(e) => dragAndDropCell(idCell, e.type)}
+                    onMouseMove={(e) => dragAndDropCell(idCell, e.type)}
                     onClick={() => selectionCell(idCell)}
                 /> : idCell}
             </div>
