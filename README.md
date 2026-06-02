@@ -5,6 +5,8 @@
 ![Redux Toolkit](https://img.shields.io/badge/Redux_Toolkit-State_Management-purple)
 ![Sass](https://img.shields.io/badge/Sass-Styling-pink)
 
+🌐 **Live Demo:** https://sheet-zeta.vercel.app/
+
 Spreadsheet-style web application built with React, TypeScript, Redux Toolkit, and Sass.
 
 The project combines interaction patterns commonly found in modern spreadsheet editors such as Google Sheets and Microsoft Excel. It focuses on implementing complex table interactions, scalable state management, reusable UI components, and maintainable frontend architecture.
@@ -222,3 +224,11 @@ npm test
 - Local storage persistence
 - Row and column resizing
 - Unit and integration tests
+
+---
+
+## 👨‍💻 Author
+
+Nikita Korytnikov
+
+GitHub: https://github.com/nikitaKor98
