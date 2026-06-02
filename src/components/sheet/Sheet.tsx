@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import Cell from "components/cell/Cell";
 import SelectionBorder from "components/selection-border/SelectionBorder";
-import { useSelectionCell } from "hooks/useSelectionCell";
+// import { useSelectionCell } from "hooks/useSelectionCell";
 
 import { LETTERS } from "constants/letters";
 
@@ -26,7 +26,7 @@ function Sheet(props: any) {
     const scrollbarRefY = useRef<HTMLDivElement>(null);
     const sheetRef = useRef<HTMLDivElement>(null);
 
-    const { selectionCell, dragAndDropCell } = useSelectionCell();
+    // const { selectionCell, dragAndDropCell } = useSelectionCell();
 
     useEffect(() => {
 
@@ -56,7 +56,7 @@ function Sheet(props: any) {
 
     }, [headerHeight, sheetMenuHeight]);
 
-    const renderContent = (type: string) => {
+    const renderContent = useCallback((type: string) => {
 
         let i = 0;
         numberColumn.splice(0, numberColumn.length);
@@ -83,11 +83,22 @@ function Sheet(props: any) {
                 cellHeight={cellHeightLetter}
                 setCellWidth={setCellWidthLetter}
                 setCellHeight={setCellHeightLetter}
-                selectionCell={selectionCell}
-                dragAndDropCell={dragAndDropCell}
+                // selectionCell={selectionCell}
+                // dragAndDropCell={dragAndDropCell}
                 className={`sheet__${type}`}>
             </Cell>));
-    }
+    }, [
+        setLineX,
+        setShowPositionLineX,
+        setLineY,
+        setShowPositionLineY,
+        cellWidthLetter,
+        cellHeightLetter,
+        setCellWidthLetter,
+        setCellHeightLetter,
+        // selectionCell,
+        // dragAndDropCell
+    ]);
 
     const handleScroll = (scroll: any) => {
         if (scrollRefLeft.current) {

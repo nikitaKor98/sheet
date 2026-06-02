@@ -1,8 +1,11 @@
-import React from "react";
-import { useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useRef } from "react";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
+import { createSelector } from "@reduxjs/toolkit";
 
 import { updateCell, updateColumns, updateRows } from "features/table/tableSlice";
+import { selectCell } from "features/selectCell/selectCellSlice";
+import { getListCellsFromStartToCurrent } from "utils";
+import { useSelectionCell } from "hooks/useSelectionCell";
 
 function Cell(props: any) {
 
@@ -17,16 +20,36 @@ function Cell(props: any) {
         setShowPositionLineX,
         setLineX,
         setShowPositionLineY,
-        setLineY,
-        selectionCell,
-        dragAndDropCell
+        setLineY
     } = props;
 
     const cellRef = useRef<HTMLDivElement>(null);
 
-    const cell = useSelector((store: any) => store.table.cells[idCell]);
-    const column = useSelector((store: any) => store.table.columns[idCell.replace(/[^A-Z]/g, "")]);
-    const row = useSelector((store: any) => store.table.rows[idCell.replace(/\D/g, "")]);
+    const cell = useSelector((store: any) => store.table.cells[idCell], shallowEqual);
+    const column = useSelector((store: any) => store.table.columns[idCell.replace(/[^A-Z]/g, "")], shallowEqual);
+    const row = useSelector((store: any) => store.table.rows[idCell.replace(/\D/g, "")], shallowEqual);
+
+    const { dragAndDropCell, selectionCell } = useSelectionCell();
+
+    const selectCellById = (id: string) =>
+        createSelector(
+            (store: any) => store.selectCell.activeCell,
+            (activeCell) => activeCell === id
+        )
+
+    const selectCellByIds = (id: string) =>
+        createSelector(
+            (store: any) => store.selectCell.selectedCells,
+            (selectedCells: string[]) => ({
+                isSelect: selectedCells.includes(id),
+                index: selectedCells.indexOf(id)
+            })
+        )
+
+    const isActive = useSelector(selectCellById(idCell), shallowEqual);
+    const isSelectedCell = useSelector(selectCellByIds(idCell), shallowEqual);
+
+    // console.log(`render: ${idCell}`)
 
     const dispatch = useDispatch();
 
@@ -84,6 +107,9 @@ function Cell(props: any) {
 
     return (
         <div
+            data-select={isSelectedCell.isSelect}
+            data-index={isSelectedCell.index}
+            data-active={isActive}
             ref={cellRef}
             className="cell"
             id={idCell}
@@ -103,9 +129,9 @@ function Cell(props: any) {
                             [idCell]: { value: e.target.value }
                         }));
                     }}
-                    onMouseDown={(e) => dragAndDropCell(idCell, e.type)}
-                    onMouseMove={(e) => dragAndDropCell(idCell, e.type)}
+                    onMouseDown={() => dragAndDropCell(idCell)}
                     onClick={() => selectionCell(idCell)}
+                    id={idCell}
                 /> : idCell}
             </div>
             <div
